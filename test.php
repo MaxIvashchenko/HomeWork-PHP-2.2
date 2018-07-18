@@ -54,7 +54,7 @@ if (!empty($_POST)) {
 	<?php if(isset($_POST["send"])) { ?>
 
 	<h3>Ваш результат: </h3>
-	<?php echo "Верных ответов " . count($ok) . " из ". count($_SESSION['tests']);} ?>
+	<?php echo "Верных ответов " . count($ok) . " из ". count(['tests']);} ?>
 	<?php foreach ($ok as $rightAnsw) { ?>
 		<p>Верно: <?= $rightAnsw; ?></p>
 	<?php } ?>

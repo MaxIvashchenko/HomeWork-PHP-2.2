@@ -1,38 +1,70 @@
+<?php
+
+if (!empty($_GET["name"])) {
+	$tests=[];
+	$tests = file_get_contents('./tests/'.$_GET['name']);
+	$tests = json_decode($tests,true);
+}
+$_SESSION['tests'] = $tests;
+?>
+<?php 
+
+$ok = [];
+$notok = [];
+
+	
+if (!empty($_POST)) {
+
+	foreach ($_POST as $post_key => $post_value) {
+		foreach ($_SESSION['tests'] as $test) {
+			if ($post_key == $test['title'] && $post_value == $test['correct']) {
+				$ok[] = $test['title'];
+			} 
+			elseif ($post_key == $test['title'] && $post_value !== $test['correct']) {
+				$notok[] = $test['title'];
+			}
+		}
+	}
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
-
+<html>
 <head>
-    <title>Домашнее задание к лекции 2.2</title>
-    <meta charset="UTF-8">
+	<meta charset="utf-8">
+	<title>Домашнее задание к лекции 2.2</title>
 </head>
+<html>
 <body>
-<form enctype="multipart/form-data" action="admin.php" method="post">
-  <h2>Выберите файл</h2>
-  <input type="file" name="testFile"><br><br>
-  <input type="submit" value="Отправить тест">
-</form>
-<?php
-if (!empty($_FILES["testFile"]["name"]))  {
-    $filename=$_FILES["testFile"]["name"];
-    $test_array=explode(".", $filename);
-    
-      if ($test_array[1] == "json")  
-      {
-        move_uploaded_file($_FILES["testFile"]["tmp_name"], "tests/" . $_FILES["testFile"]["name"]);
-        echo "<i>Тест отправлен</i> <br><br>";
-?>
-       <form><input type="submit" formaction="list.php" value="Выбрать тест"><br><br></form>
-<?php     
-      }
-    else
-      {
-        echo "<i>Ошибка</i>";
-      }
-  }
-  else
-      {
-        echo "<i>Тест не загружен</i>";
-      }
-?>
+	<h3>Пройди тест</h3>
+	<form action="" method="POST">
+	<?php  foreach ($tests as $test) {?>
+		
+		<fieldset>
+		<legend><?= $test['question'];?></legend>
+		<?php foreach ($test['answers'] as $key => $answer ){ ?>
+			<label><input type="radio" name="<?= $test['title'];?>" value="<?= $key;?>"><?= $answer['variant']; ?></label>
+		<?php } ?>
+		</fieldset>
+
+		<?php } ?>	
+		<input type="submit" name="send" value="Отправить">
+	</form>
+	<?php if(isset($_POST["send"])) { ?>
+
+	<h3>Ваш результат: </h3>
+	<?php echo "Верных ответов " . count($ok) . " из ". count($_SESSION['tests']);} ?>
+	<?php foreach ($ok as $rightAnsw) { ?>
+		<p>Верно: <?= $rightAnsw; ?></p>
+	<?php } ?>
+
+	<?php foreach ($notok as $notrightAnsw) { ?>
+		<p>Неверно: <?= $notrightAnsw;?> </p>
+	<?php } ?>
+
+<br><br><br>
+
+	<p><a href="admin.php">Вернуться к добавлению теста</a></p>
 </body>
 </html>
